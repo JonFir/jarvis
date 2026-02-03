@@ -1,0 +1,22 @@
+[package]
+name = "jarvis"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "jarvis"
+path = "src/main.rs"
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = "symbols"
+
+[dependencies]
+dotenvy = "0.15"
+teloxide = { version = "0.17.*", features = ["macros"] }
+tokio = { version = "1", features = ["process", "macros", "rt-multi-thread"] }
+anyhow = "1.0"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
