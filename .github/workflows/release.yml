@@ -1,0 +1,55 @@
+name: release-macos-arm
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust + target (aarch64)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build (release, ARM)
+        run: cargo build --release --target aarch64-apple-darwin
+
+      - name: Package
+        shell: bash
+        run: |
+          set -euxo pipefail
+
+          BIN_NAME="$(python3 - <<'PY'
+import json, subprocess
+m = subprocess.check_output(["cargo","metadata","--no-deps","--format-version","1"])
+meta = json.loads(m)
+pkg = meta["packages"][0]
+bins = [t for t in pkg["targets"] if "bin" in t.get("kind", [])]
+print(bins[0]["name"])
+PY
+)"
+          echo "BIN_NAME=$BIN_NAME" >> "$GITHUB_ENV"
+
+          mkdir -p dist
+          cp "target/aarch64-apple-darwin/release/$BIN_NAME" "dist/${BIN_NAME}-macos-arm64"
+          (cd dist && shasum -a 256 "${BIN_NAME}-macos-arm64" > "${BIN_NAME}-macos-arm64.sha256")
+          (cd dist && zip -9 "${BIN_NAME}-macos-arm64.zip" "${BIN_NAME}-macos-arm64" "${BIN_NAME}-macos-arm64.sha256")
+
+      - name: Create GitHub Release & upload assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.zip
