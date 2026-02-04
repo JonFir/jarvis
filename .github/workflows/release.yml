@@ -34,18 +34,17 @@ jobs:
           set -euxo pipefail
 
           BIN_NAME="$(python3 - <<'PY'
-import json, subprocess
-m = subprocess.check_output(["cargo","metadata","--no-deps","--format-version","1"])
-meta = json.loads(m)
-pkg = meta["packages"][0]
-bins = [t for t in pkg["targets"] if "bin" in t.get("kind", [])]
-print(bins[0]["name"])
-PY
-)"
-          echo "BIN_NAME=$BIN_NAME" >> "$GITHUB_ENV"
+          import json, subprocess
+          m = subprocess.check_output(["cargo","metadata","--no-deps","--format-version","1"])
+          meta = json.loads(m)
+          pkg = meta["packages"][0]
+          bins = [t for t in pkg["targets"] if "bin" in t.get("kind", [])]
+          print(bins[0]["name"])
+          PY
+          )"
 
           mkdir -p dist
-          cp "target/aarch64-apple-darwin/release/$BIN_NAME" "dist/${BIN_NAME}-macos-arm64"
+          cp "target/aarch64-apple-darwin/release/${BIN_NAME}" "dist/${BIN_NAME}-macos-arm64"
           (cd dist && shasum -a 256 "${BIN_NAME}-macos-arm64" > "${BIN_NAME}-macos-arm64.sha256")
           (cd dist && zip -9 "${BIN_NAME}-macos-arm64.zip" "${BIN_NAME}-macos-arm64" "${BIN_NAME}-macos-arm64.sha256")
 
