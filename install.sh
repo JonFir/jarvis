@@ -107,7 +107,7 @@ printf 'Check: %s --help\n' "$BIN_NAME"
 
 # --- LaunchAgent install (optional) ---
 
-SERVICE_LABEL="com.jonfir.jarvisbot"
+SERVICE_LABEL="ru.jonfir.jarvisbot"
 PLIST_PATH="$HOME/Library/LaunchAgents/${SERVICE_LABEL}.plist"
 LOG_DIR="$HOME/Library/Logs"
 STDOUT_LOG="$LOG_DIR/jarvisbot.log"
@@ -131,9 +131,7 @@ install_launchagent() {
 
   <key>ProgramArguments</key>
   <array>
-    <string>/bin/zsh</string>
-    <string>-lc</string>
-    <string>set -a; source "${ENV_FILE}"; set +a; exec "${dst_bin}"</string>
+    <string>"${BIN_NAME}"</string>
   </array>
 
   <key>RunAtLoad</key>
@@ -147,11 +145,6 @@ install_launchagent() {
 
   <key>StandardErrorPath</key>
   <string>${STDERR_LOG}</string>
-
-  <!-- Можно ограничить ресурсы/сделать мягче, если надо:
-  <key>ThrottleInterval</key>
-  <integer>10</integer>
-  -->
 </dict>
 </plist>
 EOF
