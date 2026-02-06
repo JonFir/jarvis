@@ -86,7 +86,8 @@ printf '\n'
 printf 'Now configure bot credentials (will be written to %s)\n' "$ENV_FILE"
 
 printf 'BOT_TOKEN: '
-read -r BOT_TOKEN
+read -rs BOT_TOKEN
+printf '\n'
 printf 'CHAT_ID: '
 read -r CHAT_ID
 
@@ -131,7 +132,7 @@ install_launchagent() {
 
   <key>ProgramArguments</key>
   <array>
-    <string>"${BIN_NAME}"</string>
+    <string>${dst_bin}</string>
   </array>
 
   <key>RunAtLoad</key>
